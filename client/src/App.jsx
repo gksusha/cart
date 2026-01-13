@@ -1,7 +1,9 @@
-export default function App() {
+function App() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white text-3xl">
-      Tailwind is working 🚀
+    <div className="min-h-screen bg-gray-100 text-gray-900">
+      {/* App content will go here */}
     </div>
   );
 }
+
+export default App;
