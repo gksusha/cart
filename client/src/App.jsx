@@ -1,4 +1,5 @@
 import Navbar from "./components/Navbar";
+import Cart from "./pages/Cart";
 
 function App() {
   return (
@@ -6,7 +7,7 @@ function App() {
       <Navbar />
 
       <main className="max-w-7xl mx-auto p-4">
-        {/* Page content will go here */}
+        <Cart />
       </main>
     </div>
   );
