@@ -1,9 +1,17 @@
-import { createContext, useState } from "react";
+import { createContext, useEffect, useState } from "react";
 
 export const CartContext = createContext();
 
 export function CartProvider({ children }) {
-  const [cartItems, setCartItems] = useState([]);
+  const [cartItems, setCartItems] = useState(() => {
+    const savedCart = localStorage.getItem("cart");
+    return savedCart ? JSON.parse(savedCart) : [];
+  });
+
+  // 🔐 Persist cart on every change
+  useEffect(() => {
+    localStorage.setItem("cart", JSON.stringify(cartItems));
+  }, [cartItems]);
 
   const addToCart = (product) => {
     setCartItems((prev) => [...prev, product]);
@@ -11,6 +19,10 @@ export function CartProvider({ children }) {
 
   const removeFromCart = (id) => {
     setCartItems((prev) => prev.filter((item) => item.id !== id));
+  };
+
+  const clearCart = () => {
+    setCartItems([]);
   };
 
   const totalPrice = cartItems.reduce(
@@ -24,6 +36,7 @@ export function CartProvider({ children }) {
         cartItems,
         addToCart,
         removeFromCart,
+        clearCart,
         totalPrice,
       }}
     >
