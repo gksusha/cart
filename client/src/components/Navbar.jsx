@@ -1,6 +1,10 @@
 import { Link } from "react-router-dom";
+import { useContext } from "react";
+import { CartContext } from "../context/CartContext";
 
 function Navbar({ dark, setDark }) {
+  const { cartItems } = useContext(CartContext);
+
   return (
     <nav
       style={{
@@ -14,9 +18,12 @@ function Navbar({ dark, setDark }) {
     >
       <strong>Cart</strong>
 
-      <div style={{ display: "flex", gap: "16px" }}>
+      <div style={{ display: "flex", gap: "16px", alignItems: "center" }}>
         <Link to="/">Home</Link>
-        <Link to="/cart">Cart</Link>
+
+        <Link to="/cart">
+          Cart ({cartItems.length})
+        </Link>
 
         <button onClick={() => setDark(!dark)}>
           {dark ? "☀️ Light" : "🌙 Dark"}
