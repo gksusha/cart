@@ -1,33 +1,22 @@
-import { useContext } from "react";
-import { CartContext } from "../context/CartContext";
+import ProductCard from "../components/ProductCard";
+import { PRODUCTS } from "../data/products";
 
 function Home() {
-  const { addToCart } = useContext(CartContext);
-
-  const products = [
-    { id: 1, name: "Laptop", price: 50000 },
-    { id: 2, name: "Headphones", price: 2000 },
-    { id: 3, name: "Mouse", price: 800 },
-  ];
-
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-      {products.map((product) => (
-        <div
-          key={product.id}
-          className="p-4 border rounded"
-        >
-          <h3 className="font-semibold">{product.name}</h3>
-          <p className="mb-2">₹{product.price}</p>
+    <div className="min-h-screen bg-white">
+      <div className="max-w-[1400px] mx-auto px-6 py-12">
+        {/* Header matching the screenshot */}
+        <h1 className="text-2xl font-normal tracking-widest text-gray-900 mb-10 uppercase">
+          Latest Products
+        </h1>
 
-          <button
-            onClick={() => addToCart(product)}
-            className="px-3 py-1 bg-black text-white rounded"
-          >
-            Add to Cart
-          </button>
+        {/* Grid Layout: 1 col mobile -> 2 col tablet -> 4 col desktop */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+          {PRODUCTS.map((product) => (
+            <ProductCard key={product.id} product={product} />
+          ))}
         </div>
-      ))}
+      </div>
     </div>
   );
 }
