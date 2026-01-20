@@ -1,0 +1,110 @@
+import Cart from "../models/Cart.js";
+
+// @desc Get user cart
+// @route GET /api/cart
+export const getCart = async (req, res) => {
+  try {
+    const cart = await Cart.findOne({ user: req.user._id });
+
+    res.json({
+      success: true,
+      cart: cart || { items: [] },
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Failed to get cart",
+    });
+  }
+};
+
+// @desc Add item to cart
+// @route POST /api/cart/add
+export const addToCart = async (req, res) => {
+  try {
+    const { productId, name, price } = req.body;
+
+    let cart = await Cart.findOne({ user: req.user._id });
+
+    if (!cart) {
+      cart = await Cart.create({
+        user: req.user._id,
+        items: [{ productId, name, price, quantity: 1 }],
+      });
+    } else {
+      const itemIndex = cart.items.findIndex(
+        (item) => item.productId === productId
+      );
+
+      if (itemIndex > -1) {
+        cart.items[itemIndex].quantity += 1;
+      } else {
+        cart.items.push({ productId, name, price, quantity: 1 });
+      }
+
+      await cart.save();
+    }
+
+    res.json({
+      success: true,
+      cart,
+    });
+  } catch (error) {
+    console.error("ADD CART ERROR 👉", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to add to cart",
+    });
+  }
+};
+
+// @desc Remove item from cart
+// @route POST /api/cart/remove
+export const removeFromCart = async (req, res) => {
+  try {
+    const { productId } = req.body;
+
+    const cart = await Cart.findOne({ user: req.user._id });
+
+    if (!cart) {
+      return res.status(404).json({
+        success: false,
+        message: "Cart not found",
+      });
+    }
+
+    cart.items = cart.items.filter(
+      (item) => item.productId !== productId
+    );
+
+    await cart.save();
+
+    res.json({
+      success: true,
+      cart,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Failed to remove item",
+    });
+  }
+};
+
+// @desc Clear cart
+// @route DELETE /api/cart/clear
+export const clearCart = async (req, res) => {
+  try {
+    await Cart.findOneAndDelete({ user: req.user._id });
+
+    res.json({
+      success: true,
+      message: "Cart cleared",
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Failed to clear cart",
+    });
+  }
+};
