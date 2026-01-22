@@ -5,7 +5,6 @@ import Cart from "../models/Cart.js";
 export const getCart = async (req, res) => {
   try {
     const cart = await Cart.findOne({ user: req.user._id });
-
     res.json({
       success: true,
       cart: cart || { items: [] },
@@ -22,24 +21,32 @@ export const getCart = async (req, res) => {
 // @route POST /api/cart/add
 export const addToCart = async (req, res) => {
   try {
-    const { productId, name, price } = req.body;
+    // FIX 1: Destructure 'image' and 'quantity' so they are not ignored
+    const { productId, name, price, image, quantity } = req.body;
+    
+    // FIX 2: Ensure quantity is a number (default to 1 if missing)
+    const qty = Number(quantity) || 1;
 
     let cart = await Cart.findOne({ user: req.user._id });
 
     if (!cart) {
       cart = await Cart.create({
         user: req.user._id,
-        items: [{ productId, name, price, quantity: 1 }],
+        // FIX 3: Save 'image' and use 'qty' variable
+        items: [{ productId, name, price, image, quantity: qty }],
       });
     } else {
+      // FIX 4: Use .toString() to ensure we match IDs correctly (prevents duplicates)
       const itemIndex = cart.items.findIndex(
-        (item) => item.productId === productId
+        (item) => item.productId.toString() === productId.toString()
       );
 
       if (itemIndex > -1) {
-        cart.items[itemIndex].quantity += 1;
+        // FIX 5: Add the actual selected quantity (e.g., +4), not just +1
+        cart.items[itemIndex].quantity += qty;
       } else {
-        cart.items.push({ productId, name, price, quantity: 1 });
+        // FIX 6: Push new item with image and correct quantity
+        cart.items.push({ productId, name, price, image, quantity: qty });
       }
 
       await cart.save();
@@ -73,8 +80,10 @@ export const removeFromCart = async (req, res) => {
       });
     }
 
+    // FIX 7: Use .toString() so the ID comparison actually works
+    // (Old code failed if database ID was ObjectId and request ID was String)
     cart.items = cart.items.filter(
-      (item) => item.productId !== productId
+      (item) => item.productId.toString() !== productId.toString()
     );
 
     await cart.save();
@@ -84,6 +93,7 @@ export const removeFromCart = async (req, res) => {
       cart,
     });
   } catch (error) {
+    console.error("REMOVE ERROR:", error);
     res.status(500).json({
       success: false,
       message: "Failed to remove item",

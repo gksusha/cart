@@ -10,26 +10,26 @@ function ProductDetails() {
   const navigate = useNavigate();
   const { addToCart } = useCart();
   const [isAdding, setIsAdding] = useState(false);
-  const [quantity, setQuantity] = useState(1);
+  const [quantity, setQuantity] = useState(1); // This holds the number you select (e.g., 4)
 
-  // Find the product that matches the URL id
   const product = PRODUCTS.find((p) => p.id === Number(id));
 
-  // If product not found, show error
   if (!product) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-white">
         <p className="text-xl text-gray-500">Product not found.</p>
-        <button onClick={() => navigate("/")} className="ml-4 text-blue-600 underline">
-            Go Home
-        </button>
       </div>
     );
   }
 
   const handleAddToCart = async () => {
     setIsAdding(true);
-    await addToCart({ ...product, quantity });
+    
+    // --- THE FIX IS HERE ---
+    // Previously, this might have said 'quantity: 1'
+    // Now we pass the 'quantity' state variable (which is 4, 5, etc.)
+    await addToCart({ ...product, quantity: quantity });
+    
     setIsAdding(false);
     navigate("/cart");
   };
@@ -37,7 +37,6 @@ function ProductDetails() {
   return (
     <div className="min-h-screen bg-white py-12">
       <div className="max-w-7xl mx-auto px-6">
-        {/* Back Button */}
         <button
           onClick={() => navigate(-1)}
           className="flex items-center gap-2 text-gray-500 hover:text-gray-800 mb-8 transition-colors cursor-pointer"
@@ -47,9 +46,8 @@ function ProductDetails() {
         </button>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-          {/* Image */}
+          {/* Product Image */}
           <div className="bg-gray-50 border border-gray-200 rounded-sm p-8 flex items-center justify-center">
-            {/* mix-blend-multiply helps the white image background blend in */}
             <img
               src={product.image}
               alt={product.name}
@@ -57,7 +55,7 @@ function ProductDetails() {
             />
           </div>
 
-          {/* Details */}
+          {/* Product Details */}
           <div className="flex flex-col justify-center">
             <h1 className="text-3xl font-light text-gray-900 mb-4">{product.name}</h1>
 
@@ -71,36 +69,42 @@ function ProductDetails() {
               <p className="text-4xl font-bold text-gray-900">${product.price.toFixed(2)}</p>
             </div>
 
-            <p className="text-gray-600 mb-8">
-              Experience premium quality with the {product.name}. Designed for performance and durability.
+            <p className="text-gray-600 mb-8 leading-relaxed">
+              Experience premium quality with the {product.name}. Designed for 
+              performance and durability, this product offers exceptional value for everyday use.
             </p>
 
-            {/* Quantity & Add Button */}
+            {/* Quantity Selector */}
             <div className="flex flex-col sm:flex-row gap-4">
               <div className="flex items-center border border-gray-300 w-32">
                 <button 
                   onClick={() => setQuantity(q => Math.max(1, q - 1))}
-                  className="w-10 h-12 flex items-center justify-center hover:bg-gray-100"
+                  className="w-10 h-12 flex items-center justify-center hover:bg-gray-100 cursor-pointer"
                 >
                   <Minus size={16} />
                 </button>
                 <div className="flex-1 text-center font-medium">{quantity}</div>
                 <button 
                   onClick={() => setQuantity(q => q + 1)}
-                  className="w-10 h-12 flex items-center justify-center hover:bg-gray-100"
+                  className="w-10 h-12 flex items-center justify-center hover:bg-gray-100 cursor-pointer"
                 >
                   <Plus size={16} />
                 </button>
               </div>
 
+              {/* Add To Cart Button */}
               <button
                 onClick={handleAddToCart}
                 disabled={isAdding}
-                className="flex-1 bg-[#343a40] text-white h-12 px-8 flex items-center justify-center gap-3 text-sm tracking-widest hover:bg-[#23272b] transition-colors"
+                className="flex-1 bg-[#343a40] text-white h-12 px-8 flex items-center justify-center gap-3 text-sm tracking-widest hover:bg-[#23272b] transition-colors cursor-pointer"
               >
                 <ShoppingCart size={18} />
                 {isAdding ? "ADDING..." : "ADD TO CART"}
               </button>
+            </div>
+            
+            <div className="mt-6 text-xs text-gray-400">
+              SKU: DEV-{product.id}00-X
             </div>
           </div>
         </div>
